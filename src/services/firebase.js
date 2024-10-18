@@ -3,6 +3,15 @@ import { auth, realTimeDb, storage } from "../firebase";
 export const insert = async ({ key, id, payload }) => {
   await realTimeDb.ref(`${key}/${id}`).set(payload);
 };
+export const update = async ({ key, id, payload }) => {
+  try {
+    await realTimeDb.ref(`${key}/${id}`).update(payload);
+    console.log('Data updated successfully!');
+  } catch (error) {
+    console.error('Error updating data:', error);
+  }
+};
+
 
 export const createAccount = async (email, password) =>
   await auth.createUserWithEmailAndPassword(email, password);

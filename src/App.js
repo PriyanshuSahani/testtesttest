@@ -26,6 +26,7 @@ function App() {
     const [selectedTo, setSelectedTo] = useState(null);
     const [rideRequest, setRideRequest] = useState(null);
     const [currentRide, setCurrentRide] = useState(null);
+    const [distance, setDistance] = useState(null);
 
     const fbCreatedRideRef = useRef();
     const fbCurrentRideRef = useRef();
@@ -46,6 +47,8 @@ function App() {
         setRideRequest,
         currentRide,
         setCurrentRide,
+        distance,
+        setDistance,
     };
 
     // const initAuthUser = () => {
@@ -121,14 +124,14 @@ function App() {
 
     useEffect(() => {
         if (rideRequest) {
-            lookingDriverTimeout.current = setTimeout(() => {
-                alert(
-                    'Cannot find your driver, please re-enter your pickup location and try again'
-                );
-                setRideRequest(null);
+            // lookingDriverTimeout.current = setTimeout(() => {
+            //     alert(
+            //         'Cannot find your driver, please re-enter your pickup location and try again'
+            //     );
+            //     setRideRequest(null);
                 uiService.hideLoading();
-            }, lookingDriverMaxTime);
-            uiService.showLoading();
+            // }, lookingDriverMaxTime);
+            // uiService.showLoading();
             fbCreatedRideRef.current = firebaseService.getRef(
                 `rides/${rideRequest.rideUuid}`
             );
