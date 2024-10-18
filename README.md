@@ -1,102 +1,84 @@
-# How to Build Uber Clone with React
+# **Design Document for On-Demand Logistics Platform**
 
-![](./screenshots/screenshot1.png)
-![](./screenshots/screenshot2.png)
-![](./screenshots/screenshot3.png)
-![](./screenshots/screenshot4.png)
-![](./screenshots/screenshot5.png)
-![](./screenshots/screenshot6.png)
+---
 
-## Table of Contents
+## **1. Major Design Decisions and Trade-Offs**
 
-| No. | Topics                                    |
-| --- | ----------------------------------------- |
-| 1   | [About Code Courses](#about-code-courses) |
-| 2   | [Live Demo](#live-demo)                   |
-| 3   | [Technologies](#technologies)             |
-| 4   | [Running the demo](#running-the-demo)     |
-| 5   | [Useful links](#useful-links)             |
+### **A. Microservices Architecture**
 
-<a id="about-code-courses"></a>
+-   **Design Decision:**  
+    The system is built using **microservices** to ensure modularity, scalability, and independent deployment of services like booking, tracking, user management, and pricing.
+-   **Trade-Off:**  
+    Managing microservices adds operational complexity (e.g., inter-service communication), but it ensures fault isolation and scalability across different modules.
 
-## 1. About Code Courses
+### **B. Asynchronous Communication via Kafka**
 
-<a href="https://codecourses.site">Code Courses</a> is a website where people learn about coding and different technologies/frameworks/libraries. To help people learn, all of the courses are **FREE** and **DETAIL**. Hopefully, after following the content on Code Courses, you will find your dream jobs, and build any applications that you want.
+-   **Design Decision:**  
+    **Apache Kafka** is used for event-driven communication between services to handle tasks like driver updates, booking confirmations, and notifications asynchronously.
+-   **Trade-Off:**  
+    This adds slight latency in communication but ensures the system remains non-blocking, improving throughput under high loads.
 
-<a id="live-demo"></a>
+### **C. NoSQL and SQL Databases for Data Handling**
 
-## 2. Live Demo
+-   **Design Decision:**  
+    The system uses **NoSQL** databases (e.g., MongoDB) for real-time vehicle tracking data and **SQL** (e.g., PostgreSQL) for transactional data like bookings and payments.
+-   **Trade-Off:**  
+    NoSQL offers high write scalability, but querying complex reports is more challenging. SQL ensures ACID compliance where consistency is critical, like payments and user data.
 
-- For the full course, You can refer to this [link](https://codecourses.site/react/how-to-build-uber-clone-with-react-ep-1/).
+### **D. Load Balancer and WebSocket for Real-Time Data**
 
-- You can refer to this [Youtube video](https://www.youtube.com/watch?v=zbL1hofCBJo) for the live demo.
+-   **Design Decision:**  
+    Load balancers distribute traffic across services, and **WebSocket** connections provide real-time communication for vehicle tracking.
+-   **Trade-Off:**  
+    While WebSocket ensures near-instant updates, maintaining persistent connections increases resource usage.
 
-<a id="technologies"></a>
+---
 
-## 3. Technologies
+## **2. Handling High-Volume Traffic and Scalability**
 
-This demo uses:
+1. **Horizontal Scaling of Microservices**
 
-- CometChat Pro 3.0.0
-- CometChat UI Kit
-- Firebase
-- React.js
-- Uuid
-- Validator
-- @emotion/core
-- dateformat
-- emoji-mart
-- html-react-parser
-- twemoji
-- leaflet-geosearch
-- leaflet-routing-machine
-- leaflet
+    - Each service runs independently in **containers** (e.g., Docker) and is managed via **Kubernetes** clusters.
+    - **Horizontal scaling** ensures the system can increase capacity by adding more instances during traffic spikes.
 
-<a id="running-the-demo"></a>
+2. **Caching with Redis**
 
-## 4. Running the demo
+    - Frequently accessed data, such as vehicle availability or price estimates, is cached using **Redis**.
+    - This reduces load on the main databases and improves response times for users.
 
-To run the demo follow these steps:
+3. **Partitioned Databases and Sharding**
 
-1. [Head to CometChat Pro and create an account](https://app.cometchat.com/signup)
-2. From the [dashboard](https://app.cometchat.com/apps), add a new app called **"uber-clone"**
-3. Select this newly added app from the list.
-4. From the Quick Start copy the **APP_ID, APP_REGION and AUTH_KEY**. These will be used later.
-5. Also copy the **REST_API_KEY** from the API & Auth Key tab.
-6. Navigate to the Users tab, and delete all the default users and groups leaving it clean **(very important)**.
-7. Download the repository [here](https://github.com/codecourses-site/uber-clone/archive/main.zip) or by running `git clone https://github.com/codecourses-site/uber-clone.git` and open it in a code editor.
-8. [Head to Firebase and create a new project](https://console.firebase.google.com)
-9. Create a file called **.env** in the root folder of your project.
-10. Import and inject your secret keys in the **.env** file containing your CometChat and Firebase in this manner.
+    - **NoSQL databases** are **sharded** to handle the massive influx of tracking updates.
+    - **SQL databases** are **partitioned** by regions or booking dates, ensuring query performance under heavy loads.
 
-```js
-REACT_APP_FIREBASE_API_KEY = xxx - xxx - xxx - xxx - xxx - xxx - xxx - xxx
-REACT_APP_FIREBASE_AUTH_DOMAIN = xxx - xxx - xxx - xxx - xxx - xxx - xxx - xxx
-REACT_APP_FIREBASE_DATABASE_URL = xxx - xxx - xxx - xxx - xxx - xxx - xxx - xxx
-REACT_APP_FIREBASE_STORAGE_BUCKET =
-  xxx - xxx - xxx - xxx - xxx - xxx - xxx - xxx
+4. **Rate Limiting and Throttling**
+    - To protect the system, rate-limiting mechanisms ensure that no user or driver can overwhelm the system with excessive requests.
 
-REACT_APP_COMETCHAT_APP_ID = xxx - xxx - xxx - xxx - xxx - xxx - xxx - xxx
-REACT_APP_COMETCHAT_REGION = xxx - xxx - xxx - xxx - xxx - xxx - xxx - xxx
-REACT_APP_COMETCHAT_AUTH_KEY = xxx - xxx - xxx - xxx - xxx - xxx - xxx - xxx
-REACT_APP_COMETCHAT_API_KEY = xxx - xxx - xxx - xxx - xxx - xxx - xxx - xxx
+---
 
-REACT_APP_MAP_BOX_API_KEY = xxx - xxx - xxx - xxx - xxx - xxx - xxx - xxx
-```
+## **3. Load Balancing and Distributed Data Handling**
 
-11. Make sure to exclude **.env** in your gitIgnore file from being exposed online.
-12. Run the following command to install the app.
+1. **Global Load Balancer (GSLB)**
 
-```sh
-    npm install
-    npm run start
-```
+    - A **Global Load Balancer** ensures user requests are routed to the nearest regional server, minimizing latency.
+    - Within each region, **local load balancers** distribute requests to available service instances.
 
-Questions about running the demo? [Open an issue](https://github.com/codecourses-site/uber-clone/issues). We're here to help ✌️
+2. **Real-Time Data Handling with Kafka**
 
-<a id="useful-links"></a>
+    - Kafka handles thousands of **tracking updates** per second by distributing data across multiple partitions.
+    - This design ensures **high throughput** without bottlenecking any single service.
 
-## 5. Useful links
+3. **WebSocket for Real-Time Communication**
 
-- 🔥 [Firebase](https://console.firebase.google.com)
-- 🔷 [React.js](https://reactjs.org/)
+    - Persistent **WebSocket connections** ensure users can track vehicles in real time.
+    - The **load balancer** maintains sticky sessions, ensuring users remain connected to the same backend instance throughout their session.
+
+4. **Distributed Data Handling and Replication**
+    - **NoSQL** databases are deployed across regions, with **replication** for fault tolerance and availability.
+    - **Read replicas** for SQL databases help handle traffic spikes for analytics queries without impacting booking transactions.
+
+---
+
+## **Conclusion**
+
+This design ensures the system is highly scalable, capable of handling 10,000 concurrent requests per second, and provides real-time tracking for users. By using a mix of **NoSQL and SQL databases**, **Kafka** for asynchronous communication, **load balancing**, and **horizontal scaling**, the platform remains responsive and efficient even under heavy loads. Trade-offs like increased complexity in microservice management and the use of multiple database types are justified by the system’s ability to deliver high performance, low latency, and fault tolerance.

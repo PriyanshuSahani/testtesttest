@@ -15,6 +15,8 @@ const RequestRide = ({ toggleModal }) => {
         distance,
         setRideRequest,
         setCurrentRide,
+        setPrice,
+        setRideStatus,
     } = useContext(Context); // Get distance from context
     const [id, setID] = useState();
     const [rideDetail, setRideDetail] = useState({ name: '', price: 0 });
@@ -36,6 +38,8 @@ const RequestRide = ({ toggleModal }) => {
                 rideName: rideDetail.name,
                 price: rideDetail.price, // Calculate price based on distance
             };
+            setPrice(rideDetail.price);
+            setRideStatus('waiting');
             try {
                 await firebaseService.insert({
                     key: 'rides',
@@ -62,14 +66,14 @@ const RequestRide = ({ toggleModal }) => {
             id: 2,
             name: 'Mini Truck',
             imageURL:
-                'https://mobile-content.uber.com/launch-experience/ride.png',
+                'https://www.mahindrasupromaxitruck.com/images/new-profittruck/gallery/photos/mini/supro-mini-truck-side-view.png',
             price: distance * 1.3,
         },
         {
             id: 3,
             name: 'Truck',
             imageURL:
-                'https://mobile-content.uber.com/launch-experience/ride.png',
+                'https://www.shutterstock.com/image-vector/white-box-truck-cargo-delivery-260nw-2176174231.jpg',
             price: distance * 1.5,
         },
     ];

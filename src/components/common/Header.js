@@ -25,7 +25,7 @@ const Header = () => {
   return (
     <div className="header">
       <div className="header__left">
-        <span>Uber Clone</span>
+        <span>GoodsNet</span>
         {user && (
           <div className="header__right">
             <img src={user.image} alt={user.email} />

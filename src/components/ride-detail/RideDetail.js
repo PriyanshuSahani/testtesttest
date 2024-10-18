@@ -11,7 +11,7 @@ import exit from '../../images/exit.png';
 import tick from '../../images/tick.png';
 
 const RideDetail = ({ user, isDriver, currentRide }) => {
-    const { setCurrentRide } = useContext(Context);
+    const { setCurrentRide, price, setPrice, rideStatus, setRideStatus } = useContext(Context);
 
     const history = useHistory();
 
